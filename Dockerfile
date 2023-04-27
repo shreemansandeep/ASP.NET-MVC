@@ -1,22 +1,19 @@
-# Base image
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
-
-# Set the working directory
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
 WORKDIR /app
+EXPOSE 80
+EXPOSE 443
 
-# Copy the .csproj file and restore dependencies
-COPY *.csproj .
-RUN dotnet restore
-
-# Copy the source code and build the application
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+WORKDIR /src
+COPY ["rasp-test.csproj", "."]
+RUN dotnet restore "rasp-test.csproj"
 COPY . .
-RUN dotnet build -c Release -o /app/build
+RUN dotnet build "rasp-test.csproj" -c Release -o /app/build
 
-# Run unit tests
-RUN dotnet test
+FROM build AS publish
+RUN dotnet publish "rasp-test.csproj" -c Release -o /app/publish
 
-# Build the production image
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+FROM base AS final
 WORKDIR /app
-COPY --from=build /app/build .
-ENTRYPOINT ["dotnet", "MyApp.dll"]
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "rasp-test.dll"]
