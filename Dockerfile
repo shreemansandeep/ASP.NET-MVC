@@ -1,19 +1,36 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
+# Set the base image
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+
+# Set the working directory
 WORKDIR /app
-EXPOSE 80
+
+# Copy the project file
+COPY *.csproj ./
+
+# Restore the project dependencies
+RUN dotnet restore
+
+# Copy the entire project folder to the container
+COPY . ./
+
+# Publish the application
+RUN dotnet publish -c Release -o out
+
+# Set the final base image
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+
+# Set the working directory
+WORKDIR /app
+
+# Copy the published output from the build container to the final container
+COPY --from=build-env /app/out .
+
+# Set the environment variable for ASP.NET Core to use HTTPS
+ENV ASPNETCORE_URLS=https://+:443
+
+# Expose port 443 for HTTPS traffic
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY *.csproj .
-RUN dotnet restore
-COPY . .
-RUN dotnet build -c Release -o /app/build
+# Start the application
+ENTRYPOINT ["dotnet", "YourAppName.dll"]
 
-FROM build AS publish
-RUN dotnet publish -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "rasp-test.dll"]
