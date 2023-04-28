@@ -9,41 +9,12 @@ pipeline{
         }
       }
       
-      stage('Restore packages'){
-   steps{
-      bat "dotnet restore YourProjectPath\\Your_Project.csproj"
-     }
-  }
-  
-  stage('Clean'){
-    steps{
-        bat "dotnet clean YourProjectPath\\Your_Project.csproj"
-     }
-   }
-   
-   stage('Build'){
-   steps{
-      bat "dotnet build YourProjectPath\\Your_Project.csproj --configuration Release"
-    }
- }
- 
- stage('Test: Unit Test'){
-   steps {
-     bat "dotnet test YourProjectPath\\UnitTest_Project.csproj"
-     }
-  }
-       
- stage('Test: Integration Test'){
-    steps {
-       bat "dotnet test ProjectPath\\IntegrateTest_Project.csproj"
-      }
-   }
-   
-   stage('Publish'){
-     steps{
-       bat "dotnet publish YourProjectPath\\Your_Project.csproj "
-     }
-}
+      stage("Restore"){
+            steps{
+                  sh 'docker image build -t $JOB_NAME:v1.$BUILD_ID .'
+                  sh 'docker image tag $JOB_NAME:v1.$BUILD_ID dockersandheep/$JOB_NAME:v1.$BUILD_ID'
+            }
+            }
       
     }
 }
