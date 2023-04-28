@@ -11,27 +11,27 @@ pipeline{
       
       stage('Restore packages'){
    steps{
-      bat "dotnet restore"
+      bat 'dotnet restore'
      }
   }
   
    
    stage('Build'){
    steps{
-      bat "dotnet build"
+      bat 'dotnet build'
     }
  }
  
  stage('Test: Unit Test'){
    steps {
-     bat "dotnet test"
+     bat 'dotnet test'
      }
   }
        
    
    stage('Publish'){
      steps{
-       bat "dotnet publish"
+       bat 'dotnet publish'
      }
 }
       
