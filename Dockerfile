@@ -32,5 +32,5 @@ ENV ASPNETCORE_URLS=https://+:443
 EXPOSE 443
 
 # Start the application
-ENTRYPOINT ["dotnet", "YourAppName.dll"]
+ENTRYPOINT ["dotnet"]
 
