@@ -9,12 +9,41 @@ pipeline{
         }
       }
       
-      stage("Docker Build image and Tag"){
-            steps{
-                  sh 'docker image build -t $JOB_NAME:v1.$BUILD_ID .'
-                  sh 'docker image tag $JOB_NAME:v1.$BUILD_ID dockersandheep/$JOB_NAME:v1.$BUILD_ID'
-            }
-            }
+      stage('Restore packages'){
+   steps{
+      bat "dotnet restore"
+     }
+  }
+  
+  stage('Clean'){
+    steps{
+        bat "dotnet clean"
+     }
+   }
+   
+   stage('Build'){
+   steps{
+      bat "dotnet build"
+    }
+ }
+ 
+ stage('Test: Unit Test'){
+   steps {
+     bat "dotnet test"
+     }
+  }
+       
+ stage('Test: Integration Test'){
+    steps {
+       bat "dotnet test"
+      }
+   }
+   
+   stage('Publish'){
+     steps{
+       bat "dotnet publish"
+     }
+}
       
     }
 }
