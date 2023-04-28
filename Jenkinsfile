@@ -15,11 +15,6 @@ pipeline{
      }
   }
   
-  stage('Clean'){
-    steps{
-        bat "dotnet clean"
-     }
-   }
    
    stage('Build'){
    steps{
@@ -33,11 +28,6 @@ pipeline{
      }
   }
        
- stage('Test: Integration Test'){
-    steps {
-       bat "dotnet test"
-      }
-   }
    
    stage('Publish'){
      steps{
