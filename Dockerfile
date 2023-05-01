@@ -1,36 +1,22 @@
-# Set the base image
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+# Base image
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the project file
-COPY *.csproj ./
-
-# Restore the project dependencies
+# Copy the .csproj file and restore dependencies
+COPY *.csproj .
 RUN dotnet restore
 
-# Copy the entire project folder to the container
-COPY . ./
+# Copy the source code and build the application
+COPY . .
+RUN dotnet build -c Release -o /app/build
 
-# Publish the application
-RUN dotnet publish -c Release -o out
+# Run unit tests
+RUN dotnet test
 
-# Set the final base image
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
-
-# Set the working directory
+# Build the production image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app
-
-# Copy the published output from the build container to the final container
-COPY --from=build-env /app/out .
-
-# Set the environment variable for ASP.NET Core to use HTTPS
-ENV ASPNETCORE_URLS=https://+:443
-
-# Expose port 443 for HTTPS traffic
-EXPOSE 443
-
-# Start the application
-ENTRYPOINT ["dotnet"]
-
+COPY --from=build /app/build .
+ENTRYPOINT ["dotnet", "MyApp.dll"]
